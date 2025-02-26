@@ -1,0 +1,12 @@
+html {
+  font-family: monospace;
+  height: 100%;
+}
+body,
+#root {
+  height: 100%;
+  margin: 0px;
+}
+#date {
+  height: 0.5em !important;
+}
