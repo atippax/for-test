@@ -9,6 +9,14 @@
     <link rel="stylesheet" crossorigin href="/for-test/assets/index-BxsjfIrS.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
+    <script>
+      if (
+        location.pathname.startsWith('/for-test') &&
+        !location.pathname.startsWith('/for-test/index.html')
+      ) {
+        location.replace('/for-test/index.html')
+      }
+    </script>
   </body>
 </html>
