@@ -2,7 +2,6 @@ export const CONTROLLER = {
   COA: 'coa-number',
   REPORT: {
     SUMMARY: 'report/summary',
-    PROGRESS: 'report/progress',
     TYPE: 'report/type',
   },
   LOGIN: 'login',
@@ -39,37 +38,13 @@ export const Statuses = [
     color: '#b30000',
   },
 ]
-export const months = [
+export const Types = [
   {
-    value: 1,
-    text: '',
+    value: 'PASS',
+    text: 'นำเข้าเรียบร้อย',
   },
   {
-    value: 2,
-    text: '',
-  },
-  {
-    value: 3,
-    text: '',
-  },
-  {
-    value: 4,
-    text: '',
-  },
-  {
-    value: 5,
-    text: '',
-  },
-  {
-    value: 6,
-    text: '',
-  },
-  {
-    value: 7,
-    text: '',
-  },
-  {
-    value: 8,
-    text: '',
+    value: 'PREPARING',
+    text: 'กำลังจัดเตรียม',
   },
 ]

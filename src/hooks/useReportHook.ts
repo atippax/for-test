@@ -8,20 +8,19 @@ const useReportHook = () => {
       return result
     },
   }
-  const progress = {
+
+  const summary = {
     getAllWithProgressAndType: async (progressId: string, typeId: string) => {
-      const result = await reportApi.progress.getAllWithProgressAndType(
+      const result = await reportApi.summary.getAllWithProgressAndType(
         progressId,
         typeId
       )
       return result
     },
     editFile: async (progressId: string, typeId: string, file: File) => {
-      const result = await reportApi.progress.editFile(progressId, typeId, file)
+      const result = await reportApi.summary.editFile(progressId, typeId, file)
       return result
     },
-  }
-  const summary = {
     createNewSummary: async (body: RequestReportSummary) => {
       const result = await reportApi.summary.createNewSummary(body)
       return result
@@ -40,7 +39,6 @@ const useReportHook = () => {
     },
   }
   return {
-    progress,
     summary,
     types,
   }

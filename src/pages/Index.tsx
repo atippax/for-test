@@ -17,6 +17,7 @@ import useToast from '@/hooks/usetoast'
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
+import { Types } from '@/constants'
 
 function IndexPage() {
   dayjs.extend(buddhistEra)
@@ -97,20 +98,22 @@ function IndexPage() {
                     {index + 1}
                   </TableCell>
                   <TableCell align="right">
-                    {dayjs(
-                      new Date(`${row?.month + 1}-01-${row?.year}`)
-                    ).format('MMMM BBBB')}
+                    {dayjs(new Date(`${row?.month}-01-${row?.year}`)).format(
+                      'MMMM BBBB'
+                    )}
                   </TableCell>
                   <TableCell align="right">
-                    {dayjs(new Date(row.createdAt)).toString()}
+                    {dayjs(new Date(row.createdAt)).format('DD MMMM BBBB')}
                   </TableCell>
-                  <TableCell align="right">{row.status}</TableCell>
+                  <TableCell align="right">
+                    {Types.find(x => x.value == row.status)?.text}
+                  </TableCell>
                   <TableCell align="right">
                     <IconButton href={`/import-report/${row.id}`}>
                       <VisibilityIcon></VisibilityIcon>
                     </IconButton>
                   </TableCell>
-                  <TableCell align="right">{row.status}</TableCell>
+                  <TableCell align="right">{row.remark}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -19,6 +19,7 @@ export type ResponseReportSummary = {
   month: number
   year: number
   status: string
+  remark: string
   reportProgresses: ReportAllSummaryData[]
   createdAt: string
   updatedAt: string
@@ -52,9 +53,34 @@ export type ResponseOneReportSummary = {
   updatedAt: string
 }
 export type ResponseReportSummaryWithProgress = {
+  id: number
   month: number
   year: number
-  status: string
+  CLOS_YM: number
+  POLICY_NO: string
+  INSURED_NO: string | null
+  TRAN_NO: string
+  TRAN_DATE: string
+  ACC_NO: string
+  SUB_CODE1: string | null
+  SUB_CODE2: string | null
+  SUB_CODE3: string | null
+  SUB_CODE4: string | null
+  SUB_CODE5: string | null
+  AMOUNT: number
+  DRCR: string
+  EFF_DATE: string
+  PORT_LVL1: string | null
+  PORT_LVL2: string | null
+  BU: string | null
+  COSTCENTER: string | null
+  GOC: string
+  RNA_CODE1: string
+  RNA_CODE2: string | null
+  NOTE1: string
+  NOTE2: string | null
+  NOTE3: string | null
+  CREATED_DATE: string
   createdAt: string
   updatedAt: string
 }
@@ -76,10 +102,11 @@ const useReportApi = () => {
       return result.data
     },
   }
-  const progress = {
+
+  const summary = {
     getAllWithProgressAndType: async (progressId: string, typeId: string) => {
       const result = await axiosClient.get<ResponseReportSummaryWithProgress[]>(
-        `${CONTROLLER.REPORT.PROGRESS}/${progressId}/progress/${typeId}`
+        `${CONTROLLER.REPORT.SUMMARY}/${progressId}/progress/${typeId}`
       )
       return result.data
     },
@@ -87,7 +114,7 @@ const useReportApi = () => {
       const formData = new FormData()
       formData.append('file', file)
       const result = await axiosClient.put(
-        `${CONTROLLER.REPORT.PROGRESS}/${progressId}/progress/${typeId}`,
+        `${CONTROLLER.REPORT.SUMMARY}/${progressId}/progress/${typeId}`,
         formData,
         {
           headers: {
@@ -97,9 +124,6 @@ const useReportApi = () => {
       )
       return result.data
     },
-  }
-
-  const summary = {
     createNewSummary: async (body: RequestReportSummary) => {
       const result = await axiosClient.post<ResponseReportSummary>(
         `${CONTROLLER.REPORT.SUMMARY}`,
@@ -129,7 +153,6 @@ const useReportApi = () => {
     },
   }
   return {
-    progress,
     summary,
     types,
   }

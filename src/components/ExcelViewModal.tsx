@@ -12,11 +12,14 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import IconButton from '@mui/material/IconButton'
+import { ResponseReportSummaryWithProgress } from '@/services/reportApi'
 export default function ImportModal({
   open,
   handleClose,
+  data,
 }: {
   open: boolean
+  data: ResponseReportSummaryWithProgress[]
   handleClose: () => void
   onSubmit: () => void
 }) {
@@ -30,14 +33,9 @@ export default function ImportModal({
   ) {
     return { order, month, importAt, status, isSee, remark }
   }
-
-  const rows = [
-    createData(1, 'ธันวาคม 2567', '10/01/2568', 'กำลังจัดส่ง', true, ''),
-    createData(2, 'พฤศจิกายน 2567', '10/01/2568', 'กำลังจัดส่ง', true, ''),
-    createData(3, 'ตุลาคม 2567', '10/01/2568', 'กำลังจัดส่ง', true, ''),
-    createData(4, 'กันยายน 2567', '10/01/2568', 'กำลังจัดส่ง', true, ''),
-    createData(5, 'สิงหาคม 2567', '10/01/2568', 'กำลังจัดส่ง', true, ''),
-  ]
+  if (!data || data.length == 0) {
+    return ''
+  }
   return (
     <Modal
       open={open}
@@ -51,8 +49,12 @@ export default function ImportModal({
           left: '50%',
           transform: 'translate(-50%, -50%)',
           width: 1400,
+          height: '800px',
           bgcolor: 'background.paper',
           boxShadow: 24,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
           p: 4,
         }}
       >
@@ -61,7 +63,6 @@ export default function ImportModal({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'end',
-            height: '100%',
           }}
         >
           <Box
@@ -76,25 +77,20 @@ export default function ImportModal({
             <span>Report Name</span>
             <span>RD_POLICY</span>
             <span>Report Status</span>
-            <span>PASS</span>
+            <span>Pass</span>
             <span>รอบรายงาน</span>
             <span>ธันวาคม 2567</span>
           </Box>
           <Box
             sx={{
+              display: 'flex',
               height: '100%',
-              position: 'relative',
-              backgroundColor: 'red',
+              flexDirection: 'column',
+              alignItems: 'space-between',
+              justifyItems: 'space-between',
             }}
           >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '0px',
-                right: '0',
-                translate: '-50% -50%',
-              }}
-            >
+            <Box sx={{ textAlign: 'end' }}>
               <IconButton onClick={handleClose} color="error">
                 <CloseIcon></CloseIcon>
               </IconButton>
@@ -102,37 +98,35 @@ export default function ImportModal({
             <Box>Last Update 15/01/2025</Box>
           </Box>
         </Box>
-        <Box>
-          <TableContainer component={Paper} sx={{ width: '100%' }}>
+        <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+            overflow: 'auto',
+            position: 'relative',
+          }}
+        >
+          <TableContainer
+            component={Paper}
+            sx={{ position: 'absolute', top: 0, right: 0, left: 0, bottom: 0 }}
+          >
             <Table sx={{ width: '100%' }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell>ลำดับที่</TableCell>
-                  <TableCell align="right">รอบเดือน</TableCell>
-                  <TableCell align="right">วันที่นำเข้า</TableCell>
-                  <TableCell align="right">สถานะ</TableCell>
-                  <TableCell align="right">ดู </TableCell>
-                  <TableCell align="right">หมายเหตุ</TableCell>
+                  {Object.keys(data[0]).map(x => (
+                    <TableCell align="right">{x}</TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map(row => (
+                {data.map((row, index) => (
                   <TableRow
-                    key={row.order}
+                    key={index}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <TableCell component="th" scope="row">
-                      {row.order}
-                    </TableCell>
-                    <TableCell align="right">{row.month}</TableCell>
-                    <TableCell align="right">{row.importAt}</TableCell>
-                    <TableCell align="right">{row.status}</TableCell>
-                    <TableCell align="right">
-                      <IconButton href="/import-report">
-                        <VisibilityIcon></VisibilityIcon>
-                      </IconButton>
-                    </TableCell>
-                    <TableCell align="right">{row.remark}</TableCell>
+                    {Object.values(row).map(x => (
+                      <TableCell align="right">{x}</TableCell>
+                    ))}
                   </TableRow>
                 ))}
               </TableBody>

@@ -6,7 +6,11 @@ import ExcelViewModal from '../components/ExcelViewModal'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useParams } from 'react-router-dom'
 import useReportHook from '@/hooks/useReportHook'
-import { ResponseOneReportSummary, TypeResponse } from '@/services/reportApi'
+import {
+  ResponseOneReportSummary,
+  ResponseReportSummaryWithProgress,
+  TypeResponse,
+} from '@/services/reportApi'
 import { Fragment, useEffect, useState } from 'react'
 import { STATUS, Statuses } from '@/constants'
 import useToast from '@/hooks/usetoast'
@@ -34,6 +38,9 @@ function ImportReportPage() {
   const { id } = useParams()
   const [typeField, setTypeField] = useState<TypeResponse[]>([])
   const reportApi = useReportHook()
+  const [dialogData, setDialogData] = useState<
+    ResponseReportSummaryWithProgress[]
+  >([])
   const utils = useUtils()
   const [summaryReport, setSummaryReport] =
     useState<ResponseOneReportSummary | null>(null)
@@ -65,11 +72,11 @@ function ImportReportPage() {
 
   async function openProgress(id: string) {
     try {
-      const result = await reportApi.progress.getAllWithProgressAndType(
+      const result = await reportApi.summary.getAllWithProgressAndType(
         summaryReport!.id.toString(),
         id
       )
-      console.log(result)
+      setDialogData(result)
     } catch (ex) {
       utils.errorLog(ex)
     }
@@ -77,22 +84,25 @@ function ImportReportPage() {
     // setSummaryReport(() => result)
   }
   async function handlerCheckFile() {
-    const result = await reportApi.summary.verfify(id!)
-    console.log(result)
+    try {
+      await reportApi.summary.verfify(id!)
+    } catch (ex) {
+      utils.errorLog(ex)
+    }
   }
   async function uploadFile() {
     toast.info('uploading . . . ')
-
     for (const fileObject of fileList) {
       try {
-        const result = reportApi.progress.editFile(
+        const result = await reportApi.summary.editFile(
           summaryReport!.id.toString(),
           fileObject[0],
           fileObject[1]
         )
         console.log(result)
+        toast.success('success')
       } catch (ex) {
-        console.log(ex)
+        utils.errorLog(ex)
       }
     }
 
@@ -130,7 +140,12 @@ function ImportReportPage() {
               }}
             >
               <h1>Saha Life Report Tool</h1>
-              <Box>รอบรายงาน</Box>
+              <Box>
+                รอบรายงาน :{' '}
+                {dayjs(
+                  new Date(`${summaryReport?.month}-01-${summaryReport?.year}`)
+                ).format('MMMM BBBB')}
+              </Box>
             </Box>
           </Box>
           <Box sx={{ display: 'flex', gap: '12px', height: '100%' }}>
@@ -159,6 +174,9 @@ function ImportReportPage() {
                       f =>
                         f.reportType.mappingTable.toLocaleLowerCase() ==
                         x.name.toLocaleLowerCase()
+                    )
+                    const statusField = Statuses.find(
+                      f => f.value == field?.status
                     )
                     return (
                       <Fragment key={index}>
@@ -201,16 +219,13 @@ function ImportReportPage() {
                         <span>
                           <Box
                             sx={{
-                              color:
-                                Statuses.find(f => f.value == field?.status)
-                                  ?.color || '',
+                              color: statusField?.color || '',
                               padding: '8px 24px',
                               width: 'fit-content',
                               border: '1px solid gray',
                             }}
                           >
-                            {Statuses.find(f => f.value == field?.status)
-                              ?.title || ''}
+                            {!statusField ? STATUS.NEW : statusField.title}
                           </Box>
                         </span>
                       </Fragment>
@@ -272,7 +287,7 @@ function ImportReportPage() {
                 <span>
                   {dayjs(
                     new Date(
-                      `${summaryReport?.month + 1}-01-${summaryReport?.year}`
+                      `${summaryReport?.month}-01-${summaryReport?.year}`
                     )
                   ).format('MMMM BBBB')}
                 </span>
@@ -299,14 +314,27 @@ function ImportReportPage() {
                 sx={{
                   borderRadius: '12px',
                   border: '1px solid gray',
-                  padding: '12px',
                   height: '100%',
-                  overflow: 'auto',
+                  width: '100%',
+                  position: 'relative',
                   minHeight: '200px',
                 }}
               >
-                {summaryReport?.status}
-                <br></br>
+                <Box
+                  sx={{
+                    overflow: 'auto',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    padding: '24px',
+                  }}
+                >
+                  {summaryReport?.reportProgresses.map(x => (
+                    <div>{x.errorMessage}</div>
+                  ))}
+                </Box>
               </Box>
               <Box sx={{ textAlign: 'end' }}>
                 <div>
@@ -334,6 +362,7 @@ function ImportReportPage() {
       </Box>
       <ExcelViewModal
         open={openImportDialog}
+        data={dialogData}
         handleClose={() => {
           setOpenImportDialog(false)
         }}
