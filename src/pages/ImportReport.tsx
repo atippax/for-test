@@ -292,7 +292,7 @@ function ImportReportPage() {
                   ).format('MMMM BBBB')}
                 </span>
                 <span>จำนวนรายงาน</span>
-                <span>{summaryReport?.reportProgresses.length}</span>
+                <span>{summaryReport?.reportProgresses.filter(progress => progress.fileName).length}</span>
                 <span>รายงานนำเข้าสำเร็จ</span>
                 <span>
                   {

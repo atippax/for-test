@@ -46,7 +46,7 @@ const Layout = () => {
               variant="h6"
               sx={{ cursor: 'pointer', flexGrow: 1, fontWeight: 'bold' }}
             >
-              SAHALIFE-R3S
+              SAHA LIFE TFTS 17
             </Typography>
           </div>
 

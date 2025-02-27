@@ -145,6 +145,13 @@ const useReportApi = () => {
       )
       return result.data
     },
+    editSummary: async ({ id, remark }: { id: number; remark: string }) => {
+      const result = await axiosClient.put<ResponseReportSummary>(
+        `${CONTROLLER.REPORT.SUMMARY}/${id}`,
+        { remark }
+      )
+      return result.data
+    },
     getOneSummary: async (id: string) => {
       const result = await axiosClient.get<ResponseOneReportSummary>(
         `${CONTROLLER.REPORT.SUMMARY}/${id}`

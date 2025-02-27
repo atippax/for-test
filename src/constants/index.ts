@@ -40,7 +40,7 @@ export const Statuses = [
 ]
 export const Types = [
   {
-    value: 'PASS',
+    value: 'FINISHED',
     text: 'นำเข้าเรียบร้อย',
   },
   {

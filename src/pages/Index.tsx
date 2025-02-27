@@ -18,27 +18,54 @@ import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
 import { Types } from '@/constants'
-
+import { TextField } from '@mui/material'
+import useUtils from '@/utils/utils'
+interface ResponseReportSummaryExtension extends ResponseReportSummary {
+  isEdit: boolean
+}
 function IndexPage() {
   dayjs.extend(buddhistEra)
   dayjs.locale('th')
   let navigate = useNavigate()
   const reportApi = useReportHook()
   const toast = useToast()
+  const util = useUtils()
+
   const [openImportDialog, setOpenImportDialog] = useState(false)
-  const [dataSummary, setDataSummary] = useState<ResponseReportSummary[]>([])
+  const [dataSummary, setDataSummary] = useState<
+    ResponseReportSummaryExtension[]
+  >([])
   async function submitCreateNewReport(month: number, year: number) {
     setOpenImportDialog(false)
     const result = await reportApi.summary.createNewSummary({ month, year })
     navigate(`/import-report/${result.id}`)
   }
+  async function updateRemark({
+    itemId,
+    remark,
+  }: {
+    itemId: number
+    remark: string
+  }) {
+    try {
+      const result = await reportApi.summary.editSummary({ id: itemId, remark })
+      setDataSummary(prev =>
+        prev.map(item =>
+          item.id === itemId ? { ...result, isEdit: false } : item
+        )
+      )
+      toast.success('แก้ไขหมายเหตุสำเร็จ')
+    } catch (ex) {
+      util.errorLog(ex)
+    }
+  }
   useEffect(() => {
     const fetchData = async () => {
       try {
         const result = await reportApi.summary.getAllSummary()
-        setDataSummary(() => result)
+        setDataSummary(() => result.map(x => ({ ...x, isEdit: false })))
       } catch (ex) {
-        toast.error((ex as any).message)
+        util.errorLog(ex)
       }
     }
     fetchData()
@@ -82,7 +109,7 @@ function IndexPage() {
               <TableRow>
                 <TableCell>ลำดับที่</TableCell>
                 <TableCell align="right">รอบเดือน</TableCell>
-                <TableCell align="right">วันที่นำเข้า</TableCell>
+                <TableCell align="right">วันที่เเก้ไขล่าสุด</TableCell>
                 <TableCell align="right">สถานะ</TableCell>
                 <TableCell align="right">ดู</TableCell>
                 <TableCell align="right">หมายเหตุ</TableCell>
@@ -103,7 +130,7 @@ function IndexPage() {
                     )}
                   </TableCell>
                   <TableCell align="right">
-                    {dayjs(new Date(row.createdAt)).format('DD MMMM BBBB')}
+                    {dayjs(new Date(row.updatedAt)).format('DD/MM/BBBB')}
                   </TableCell>
                   <TableCell align="right">
                     {Types.find(x => x.value == row.status)?.text}
@@ -113,7 +140,58 @@ function IndexPage() {
                       <VisibilityIcon></VisibilityIcon>
                     </IconButton>
                   </TableCell>
-                  <TableCell align="right">{row.remark}</TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ display: 'flex', gap: '12px', alignItems: 'center' }}
+                  >
+                    {row.isEdit ? (
+                      <Button
+                        size="small"
+                        color="info"
+                        variant="contained"
+                        onClick={() =>
+                          updateRemark({ itemId: row.id, remark: row.remark })
+                        }
+                      >
+                        บันทึก
+                      </Button>
+                    ) : (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="warning"
+                        onClick={() =>
+                          setDataSummary(prev =>
+                            prev.map(item =>
+                              item.id === row.id
+                                ? { ...item, isEdit: true }
+                                : item
+                            )
+                          )
+                        }
+                      >
+                        แก้ไข
+                      </Button>
+                    )}
+                    {row.isEdit ? (
+                      <TextField
+                        variant="outlined"
+                        size="small"
+                        value={row.remark}
+                        onChange={e =>
+                          setDataSummary(prev =>
+                            prev.map(item =>
+                              item.id === row.id
+                                ? { ...item, remark: e.target.value }
+                                : item
+                            )
+                          )
+                        }
+                      ></TextField>
+                    ) : (
+                      <Box>row.remark</Box>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

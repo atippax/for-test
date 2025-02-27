@@ -29,6 +29,10 @@ const useReportHook = () => {
       const result = await reportApi.summary.getAllSummary()
       return result
     },
+    editSummary: async ({ id, remark }: { id: number; remark: string }) => {
+      const result = await reportApi.summary.editSummary({ id, remark })
+      return result
+    },
     getOneSummary: async (id: string) => {
       const result = await reportApi.summary.getOneSummary(id)
       return result
