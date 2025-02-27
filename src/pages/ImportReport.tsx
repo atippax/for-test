@@ -17,7 +17,7 @@ import useToast from '@/hooks/usetoast'
 import useUtils from '@/utils/utils'
 import dayjs from 'dayjs'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
-import BackLayout from '@/layouts/backLayout'
+import BackLayout from '@/layouts/BackLayout'
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
