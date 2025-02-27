@@ -31,6 +31,17 @@ export default function ImportModal({
     setYearSelect(e)
     setMonthList(month)
   }
+  function importHandler() {
+    onSubmit(+(yearSelect?.get('M') || 0) + 1, +(yearSelect?.get('year') || 0))
+    setYearSelect(null)
+    setMonthSelect(null)
+  }
+  function closeHandler() {
+    handleClose()
+    setYearSelect(null)
+    setMonthSelect(null)
+  }
+
   return (
     <Modal
       open={open}
@@ -56,7 +67,7 @@ export default function ImportModal({
           <Typography id="modal-modal-title" variant="h6" component="h2">
             กรุณาเลือกรอบวันที่รายงาน
           </Typography>
-          <IconButton onClick={handleClose}>
+          <IconButton onClick={closeHandler}>
             <CloseIcon></CloseIcon>
           </IconButton>
         </Box>
@@ -109,12 +120,7 @@ export default function ImportModal({
           }}
         >
           <Button
-            onClick={() =>
-              onSubmit(
-                +(yearSelect?.get('M') || 0) + 1,
-                +(yearSelect?.get('year') || 0)
-              )
-            }
+            onClick={importHandler}
             variant="contained"
             disabled={!yearSelect || !monthSelect}
           >

@@ -7,10 +7,10 @@ export const CONTROLLER = {
   LOGIN: 'login',
 }
 export const STATUS = {
-  PASSED: 'PASSED',
+  PASSED: 'PASS',
   PROCESSING: 'PROCESSING',
-  NEW: '',
-  FAILED: 'FAILED',
+  NEW: 'WAITING',
+  FAILED: 'FAIL',
 }
 export const Statuses = [
   {

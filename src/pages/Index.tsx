@@ -36,9 +36,14 @@ function IndexPage() {
     ResponseReportSummaryExtension[]
   >([])
   async function submitCreateNewReport(month: number, year: number) {
-    setOpenImportDialog(false)
-    const result = await reportApi.summary.createNewSummary({ month, year })
-    navigate(`/import-report/${result.id}`)
+    try {
+      setOpenImportDialog(false)
+      const result = await reportApi.summary.createNewSummary({ month, year })
+      toast.success('สร้างรายงานใหม่สำเร็จ')
+      navigate(`/import-report/${result.id}`)
+    } catch (ex) {
+      util.errorLog(ex)
+    }
   }
   async function updateRemark({
     itemId,
@@ -189,7 +194,7 @@ function IndexPage() {
                         }
                       ></TextField>
                     ) : (
-                      <Box>row.remark</Box>
+                      <Box>{row.remark}</Box>
                     )}
                   </TableCell>
                 </TableRow>

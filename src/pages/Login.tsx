@@ -7,9 +7,15 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FieldValidator, useInputValidator } from '@/hooks/useInputValidator'
 import useUtils from '@/utils/utils'
+import { useAuth } from '@/contexts/authContext'
 function LoginPage() {
   const { login } = useAuthHook()
+  const { user } = useAuth()
   const navigate = useNavigate()
+  if (user) {
+    window.location.replace('/')
+    return
+  }
   const util = useUtils()
   const { validatePassword, validateUsername } = useInputValidator()
   const [username, setUsername] = useState('')
@@ -22,6 +28,7 @@ function LoginPage() {
     isValid: true,
     message: '',
   })
+
   const handleSubmit = async (e: React.FormEvent) => {
     try {
       e.preventDefault()

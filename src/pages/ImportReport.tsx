@@ -17,7 +17,7 @@ import useToast from '@/hooks/usetoast'
 import useUtils from '@/utils/utils'
 import dayjs from 'dayjs'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
-
+import BackLayout from '@/layouts/backLayout'
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -34,6 +34,7 @@ function ImportReportPage() {
   dayjs.extend(buddhistEra)
   dayjs.locale('th')
   const toast = useToast()
+  const [loading, setLoading] = useState(false)
   const [openImportDialog, setOpenImportDialog] = useState(false)
   const { id } = useParams()
   const [typeField, setTypeField] = useState<TypeResponse[]>([])
@@ -41,11 +42,15 @@ function ImportReportPage() {
   const [dialogData, setDialogData] = useState<
     ResponseReportSummaryWithProgress[]
   >([])
+  const [fileList, setFileList] = useState<Map<string, File>>(new Map())
+
   const utils = useUtils()
   const [summaryReport, setSummaryReport] =
     useState<ResponseOneReportSummary | null>(null)
   async function fetchData() {
     if (!id) return
+    setLoading(true)
+    setFileList(new Map())
     try {
       const result = await reportApi.summary.getOneSummary(id)
       setSummaryReport(() => result)
@@ -54,11 +59,11 @@ function ImportReportPage() {
     } catch (ex) {
       utils.errorLog(ex)
     }
+    setLoading(false)
   }
   useEffect(() => {
     fetchData()
   }, [id])
-  const [fileList, setFileList] = useState<Map<string, File>>(new Map())
 
   function handleFileUpload(id: string, files: FileList | null) {
     if (!files || files.length === 0) return
@@ -71,52 +76,57 @@ function ImportReportPage() {
   }
 
   async function openProgress(id: string) {
+    setLoading(true)
     try {
       const result = await reportApi.summary.getAllWithProgressAndType(
         summaryReport!.id.toString(),
         id
       )
       setDialogData(result)
+      setOpenImportDialog(true)
     } catch (ex) {
       utils.errorLog(ex)
     }
-    setOpenImportDialog(true)
-    // setSummaryReport(() => result)
+    setLoading(false)
   }
   async function handlerCheckFile() {
+    setLoading(true)
     try {
       await reportApi.summary.verfify(id!)
+      toast.success('ตรวจสอบสำเร็จ')
     } catch (ex) {
       utils.errorLog(ex)
     }
+    await fetchData()
+    setLoading(false)
   }
   async function uploadFile() {
     toast.info('uploading . . . ')
+    setLoading(true)
     for (const fileObject of fileList) {
       try {
-        const result = await reportApi.summary.editFile(
+        await reportApi.summary.editFile(
           summaryReport!.id.toString(),
           fileObject[0],
           fileObject[1]
         )
-        console.log(result)
+
         toast.success('success')
       } catch (ex) {
         utils.errorLog(ex)
       }
     }
-
+    setLoading(false)
     await fetchData()
   }
   if (!summaryReport) {
     return 'loading . . . '
   }
   return (
-    <>
+    <BackLayout>
       <div>
         <Box
           sx={{
-            margin: '48px 48px 0px 48px',
             display: 'flex',
             flexDirection: 'column',
             height: '100%',
@@ -185,12 +195,13 @@ function ImportReportPage() {
                           <TextField
                             variant="outlined"
                             size="small"
-                            value={file?.name ?? field?.fileName}
+                            value={(file?.name ?? field?.fileName) || ''}
                             disabled
                           />
                         </span>
                         <span>
                           <Button
+                            disabled={loading}
                             component="label"
                             role={undefined}
                             variant="outlined"
@@ -211,7 +222,10 @@ function ImportReportPage() {
                           </Button>
                         </span>
                         <span>
-                          <IconButton onClick={() => openProgress(`${x.id}`)}>
+                          <IconButton
+                            disabled={loading}
+                            onClick={() => openProgress(`${x.id}`)}
+                          >
                             <VisibilityIcon></VisibilityIcon>
                           </IconButton>
                         </span>
@@ -221,8 +235,8 @@ function ImportReportPage() {
                             sx={{
                               color: statusField?.color || '',
                               padding: '8px 24px',
-                              width: 'fit-content',
                               border: '1px solid gray',
+                              textAlign: 'center',
                             }}
                           >
                             {!statusField ? STATUS.NEW : statusField.title}
@@ -233,35 +247,42 @@ function ImportReportPage() {
                   })}
                 </Box>
               </Box>
-
-              <Box
-                sx={{
-                  margin: '24px',
-                  display: 'flex',
-                  justifyContent: 'end',
-                  flexDirection: 'row',
-                  gap: '12px',
-                }}
-              >
-                <Button
-                  disabled={fileList.size <= 0}
-                  variant="contained"
-                  color="warning"
-                  onClick={uploadFile}
+              {summaryReport.reportProgresses.every(
+                x => x.status == STATUS.PASSED
+              ) ? (
+                ''
+              ) : (
+                <Box
+                  sx={{
+                    margin: '24px',
+                    display: 'flex',
+                    justifyContent: 'end',
+                    flexDirection: 'row',
+                    gap: '12px',
+                  }}
                 >
-                  บันทึก
-                </Button>
-                <Button
-                  disabled={summaryReport?.reportProgresses.some(
-                    x => x.fileName == ''
-                  )}
-                  variant="contained"
-                  color="success"
-                  onClick={handlerCheckFile}
-                >
-                  ตรวจสอบ
-                </Button>
-              </Box>
+                  <Button
+                    disabled={fileList.size <= 0 || loading}
+                    variant="contained"
+                    color="warning"
+                    onClick={uploadFile}
+                  >
+                    บันทึก
+                  </Button>
+                  <Button
+                    disabled={
+                      summaryReport?.reportProgresses.some(
+                        x => x.fileName == ''
+                      ) || loading
+                    }
+                    variant="contained"
+                    color="success"
+                    onClick={handlerCheckFile}
+                  >
+                    ตรวจสอบ
+                  </Button>
+                </Box>
+              )}
             </Box>
             <Box
               sx={{
@@ -292,12 +313,18 @@ function ImportReportPage() {
                   ).format('MMMM BBBB')}
                 </span>
                 <span>จำนวนรายงาน</span>
-                <span>{summaryReport?.reportProgresses.filter(progress => progress.fileName).length}</span>
+                <span>
+                  {
+                    summaryReport?.reportProgresses.filter(
+                      progress => progress.fileName != null
+                    ).length
+                  }
+                </span>
                 <span>รายงานนำเข้าสำเร็จ</span>
                 <span>
                   {
                     summaryReport?.reportProgresses.filter(
-                      x => x.status == STATUS.PASSED
+                      x => x.status == STATUS.PASSED && x.fileName != null
                     ).length
                   }
                 </span>
@@ -305,7 +332,7 @@ function ImportReportPage() {
                 <span>
                   {
                     summaryReport?.reportProgresses.filter(
-                      x => x.status == STATUS.FAILED
+                      x => x.status == STATUS.FAILED && x.fileName != null
                     ).length
                   }
                 </span>
@@ -340,9 +367,11 @@ function ImportReportPage() {
                 <div>
                   <Button
                     variant="contained"
-                    disabled={summaryReport?.reportProgresses.every(
-                      x => x.status == STATUS.PASSED
-                    )}
+                    disabled={
+                      !summaryReport?.reportProgresses.every(
+                        x => x.status == STATUS.PASSED
+                      ) || loading
+                    }
                     color="success"
                   >
                     Export File
@@ -353,13 +382,7 @@ function ImportReportPage() {
           </Box>
         </Box>
       </div>
-      <Box sx={{ textAlign: 'end', margin: '24px 48px' }}>
-        <div>
-          <Button variant="outlined" href="../">
-            Back
-          </Button>
-        </div>
-      </Box>
+
       <ExcelViewModal
         open={openImportDialog}
         data={dialogData}
@@ -370,7 +393,7 @@ function ImportReportPage() {
           setOpenImportDialog(false)
         }}
       ></ExcelViewModal>
-    </>
+    </BackLayout>
   )
 }
 

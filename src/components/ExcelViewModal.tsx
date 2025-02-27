@@ -12,6 +12,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import IconButton from '@mui/material/IconButton'
 import { ResponseReportSummaryWithProgress } from '@/services/reportApi'
+import useToast from '@/hooks/usetoast'
 export default function ImportModal({
   open,
   handleClose,
@@ -22,7 +23,9 @@ export default function ImportModal({
   handleClose: () => void
   onSubmit: () => void
 }) {
+  const toast = useToast()
   if (!data || data.length == 0) {
+    if (open) toast.error('ไม่มีข้อมูล')
     return ''
   }
   return (

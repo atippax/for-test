@@ -11,18 +11,17 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  // const token = localStorage.getItem('token')
-  // if (!token) {
-  //   localStorage.removeItem('user')
-  //   if (window.location.pathname != '/login') {
-  //     window.location.href = '/login'
-  //     return
-  //   }
-  // }
+  const token = localStorage.getItem('token')
+  if (!token) {
+    if (window.location.pathname != '/login') {
+      window.location.href = '/login'
+      return
+    }
+  }
 
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('user')
-    return savedUser ? JSON.parse(savedUser) : null
+    const token = localStorage.getItem('token')
+    return token ? convertor().convertJwtToObject<User>(token) : null
   })
 
   const login = (token: string) => {
