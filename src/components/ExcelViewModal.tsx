@@ -10,7 +10,6 @@ import {
   TableRow,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 import IconButton from '@mui/material/IconButton'
 import { ResponseReportSummaryWithProgress } from '@/services/reportApi'
 export default function ImportModal({
@@ -23,16 +22,6 @@ export default function ImportModal({
   handleClose: () => void
   onSubmit: () => void
 }) {
-  function createData(
-    order: number,
-    month: string,
-    importAt: string,
-    status: string,
-    isSee: boolean,
-    remark: string
-  ) {
-    return { order, month, importAt, status, isSee, remark }
-  }
   if (!data || data.length == 0) {
     return ''
   }
