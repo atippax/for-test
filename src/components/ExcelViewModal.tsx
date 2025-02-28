@@ -13,18 +13,20 @@ import CloseIcon from '@mui/icons-material/Close'
 import IconButton from '@mui/material/IconButton'
 import { ResponseReportSummaryWithProgress } from '@/services/reportApi'
 import useToast from '@/hooks/usetoast'
+import { Statuses } from '@/constants'
+import dayjs from 'dayjs'
 export default function ImportModal({
   open,
   handleClose,
   data,
 }: {
   open: boolean
-  data: ResponseReportSummaryWithProgress[]
+  data: ResponseReportSummaryWithProgress | null
   handleClose: () => void
   onSubmit: () => void
 }) {
   const toast = useToast()
-  if (!data || data.length == 0) {
+  if (!data) {
     if (open) toast.error('ไม่มีข้อมูล')
     return ''
   }
@@ -67,11 +69,15 @@ export default function ImportModal({
             }}
           >
             <span>Report Name</span>
-            <span>RD_POLICY</span>
+            <span>{data.reportType.name}</span>
             <span>Report Status</span>
-            <span>Pass</span>
+            <span>{Statuses.find(x => x.value == data.status)?.title}</span>
             <span>รอบรายงาน</span>
-            <span>ธันวาคม 2567</span>
+            <span>
+              {dayjs(new Date(`${data.month}-01-${data.year}`)).format(
+                'MMMM BBBB'
+              )}
+            </span>
           </Box>
           <Box
             sx={{
@@ -87,7 +93,9 @@ export default function ImportModal({
                 <CloseIcon></CloseIcon>
               </IconButton>
             </Box>
-            <Box>Last Update 15/01/2025</Box>
+            <Box>
+              Last Update {dayjs(new Date(data.updatedAt)).format('DD/MM/BBBB')}
+            </Box>
           </Box>
         </Box>
         <Box
@@ -102,16 +110,20 @@ export default function ImportModal({
             component={Paper}
             sx={{ position: 'absolute', top: 0, right: 0, left: 0, bottom: 0 }}
           >
-            <Table sx={{ width: '100%' }} aria-label="simple table">
+            <Table
+              stickyHeader
+              sx={{ width: '100%' }}
+              aria-label="simple table"
+            >
               <TableHead>
                 <TableRow>
-                  {Object.keys(data[0]).map(x => (
+                  {data.headers.map(x => (
                     <TableCell align="right">{x}</TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((row, index) => (
+                {data.rows.map((row, index) => (
                   <TableRow
                     key={index}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

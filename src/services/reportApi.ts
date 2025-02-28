@@ -24,15 +24,16 @@ export type ResponseReportSummary = {
   createdAt: string
   updatedAt: string
 }
+interface ReportType {
+  createdAt: string
+  description: string | null
+  id: number
+  mappingTable: string
+  name: string
+}
 export interface ReportOneSummaryData {
   reportSummaryId: number
-  reportType: {
-    createdAt: string
-    description: string | null
-    id: number
-    mappingTable: string
-    name: string
-  }
+  reportType: ReportType
   createdAt: string
   errorCode: string
   errorMessage: string
@@ -52,7 +53,22 @@ export type ResponseOneReportSummary = {
   createdAt: string
   updatedAt: string
 }
-export type ResponseReportSummaryWithProgress = {
+export interface ResponseReportSummaryWithProgress {
+  createdAt: string
+  errorCode: string
+  errorMessage: string | null
+  fileName: string
+  headers: string[]
+  id: number
+  month: number
+  reportSummaryId: number
+  reportType: ReportType
+  rows: DataTable[]
+  status: string
+  updatedAt: string
+  year: number
+}
+export type DataTable = {
   id: number
   month: number
   year: number
@@ -105,7 +121,7 @@ const useReportApi = () => {
 
   const summary = {
     getAllWithProgressAndType: async (progressId: string, typeId: string) => {
-      const result = await axiosClient.get<ResponseReportSummaryWithProgress[]>(
+      const result = await axiosClient.get<ResponseReportSummaryWithProgress>(
         `${CONTROLLER.REPORT.SUMMARY}/${progressId}/progress/${typeId}`
       )
       return result.data
@@ -130,6 +146,13 @@ const useReportApi = () => {
         {
           ...body,
         }
+      )
+      return result.data
+    },
+    async getFileBinary(id: number) {
+      const result = await axiosClient.get<Blob>(
+        `${CONTROLLER.REPORT.SUMMARY}/${id}/export`,
+        { responseType: 'blob' }
       )
       return result.data
     },

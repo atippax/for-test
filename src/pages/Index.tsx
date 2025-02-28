@@ -145,57 +145,63 @@ function IndexPage() {
                       <VisibilityIcon></VisibilityIcon>
                     </IconButton>
                   </TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{ display: 'flex', gap: '12px', alignItems: 'center' }}
-                  >
-                    {row.isEdit ? (
-                      <Button
-                        size="small"
-                        color="info"
-                        variant="contained"
-                        onClick={() =>
-                          updateRemark({ itemId: row.id, remark: row.remark })
-                        }
-                      >
-                        บันทึก
-                      </Button>
-                    ) : (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="warning"
-                        onClick={() =>
-                          setDataSummary(prev =>
-                            prev.map(item =>
-                              item.id === row.id
-                                ? { ...item, isEdit: true }
-                                : item
+                  <TableCell align="right">
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '12px',
+                        alignItems: 'center',
+                        justifyContent: 'end',
+                      }}
+                    >
+                      {row.isEdit ? (
+                        <TextField
+                          variant="outlined"
+                          size="small"
+                          value={row.remark}
+                          onChange={e =>
+                            setDataSummary(prev =>
+                              prev.map(item =>
+                                item.id === row.id
+                                  ? { ...item, remark: e.target.value }
+                                  : item
+                              )
                             )
-                          )
-                        }
-                      >
-                        แก้ไข
-                      </Button>
-                    )}
-                    {row.isEdit ? (
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={row.remark}
-                        onChange={e =>
-                          setDataSummary(prev =>
-                            prev.map(item =>
-                              item.id === row.id
-                                ? { ...item, remark: e.target.value }
-                                : item
+                          }
+                        ></TextField>
+                      ) : (
+                        <Box>{row.remark}</Box>
+                      )}
+                      {row.isEdit ? (
+                        <Button
+                          size="small"
+                          color="info"
+                          variant="contained"
+                          onClick={() =>
+                            updateRemark({ itemId: row.id, remark: row.remark })
+                          }
+                        >
+                          บันทึก
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="warning"
+                          onClick={() =>
+                            setDataSummary(prev =>
+                              prev.map(item =>
+                                item.id === row.id
+                                  ? { ...item, isEdit: true }
+                                  : item
+                              )
                             )
-                          )
-                        }
-                      ></TextField>
-                    ) : (
-                      <Box>{row.remark}</Box>
-                    )}
+                          }
+                        >
+                          แก้ไข
+                        </Button>
+                      )}
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}

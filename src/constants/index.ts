@@ -38,13 +38,17 @@ export const Statuses = [
     color: '#b30000',
   },
 ]
+export const Type = {
+  FINISH: 'FINISHED',
+  PREPARE: 'PREPARING',
+}
 export const Types = [
   {
-    value: 'FINISHED',
+    value: Type.FINISH,
     text: 'นำเข้าเรียบร้อย',
   },
   {
-    value: 'PREPARING',
+    value: Type.PREPARE,
     text: 'กำลังจัดเตรียม',
   },
 ]

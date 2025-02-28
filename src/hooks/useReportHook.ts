@@ -37,6 +37,10 @@ const useReportHook = () => {
       const result = await reportApi.summary.getOneSummary(id)
       return result
     },
+    async getFileBinary(id: number) {
+      const result = await reportApi.summary.getFileBinary(id)
+      return result
+    },
     verfify: async (id: string) => {
       const result = await reportApi.summary.verfify(id)
       return result

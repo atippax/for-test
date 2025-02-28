@@ -12,7 +12,7 @@ import {
   TypeResponse,
 } from '@/services/reportApi'
 import { Fragment, useEffect, useState } from 'react'
-import { STATUS, Statuses } from '@/constants'
+import { STATUS, Statuses, Type } from '@/constants'
 import useToast from '@/hooks/usetoast'
 import useUtils from '@/utils/utils'
 import dayjs from 'dayjs'
@@ -39,9 +39,8 @@ function ImportReportPage() {
   const { id } = useParams()
   const [typeField, setTypeField] = useState<TypeResponse[]>([])
   const reportApi = useReportHook()
-  const [dialogData, setDialogData] = useState<
-    ResponseReportSummaryWithProgress[]
-  >([])
+  const [dialogData, setDialogData] =
+    useState<ResponseReportSummaryWithProgress | null>(null)
   const [fileList, setFileList] = useState<Map<string, File>>(new Map())
 
   const utils = useUtils()
@@ -64,7 +63,18 @@ function ImportReportPage() {
   useEffect(() => {
     fetchData()
   }, [id])
-
+  async function downloadFile(id: number) {
+    if (!id) return
+    setLoading(true)
+    try {
+      const file = await reportApi.summary.getFileBinary(id)
+      utils.downloadFile(file, `report-${new Date()}.xlsx`)
+      toast.success('ดาวน์โหลดสำเร็จ')
+    } catch (ex) {
+      utils.errorLog(ex)
+    }
+    setLoading(false)
+  }
   function handleFileUpload(id: string, files: FileList | null) {
     if (!files || files.length === 0) return
 
@@ -249,7 +259,7 @@ function ImportReportPage() {
               </Box>
               {summaryReport.reportProgresses.every(
                 x => x.status == STATUS.PASSED
-              ) ? (
+              ) || summaryReport.status == Type.FINISH ? (
                 ''
               ) : (
                 <Box
@@ -272,7 +282,7 @@ function ImportReportPage() {
                   <Button
                     disabled={
                       summaryReport?.reportProgresses.some(
-                        x => x.fileName == ''
+                        x => x.status == STATUS.PROCESSING
                       ) || loading
                     }
                     variant="contained"
@@ -358,14 +368,15 @@ function ImportReportPage() {
                     padding: '24px',
                   }}
                 >
-                  {summaryReport?.reportProgresses.map(x => (
-                    <div>{x.errorMessage}</div>
+                  {summaryReport?.reportProgresses.map((x, _index) => (
+                    <Fragment key={_index}>{x.errorMessage}</Fragment>
                   ))}
                 </Box>
               </Box>
               <Box sx={{ textAlign: 'end' }}>
                 <div>
                   <Button
+                    onClick={() => downloadFile(+id!)}
                     variant="contained"
                     disabled={
                       !summaryReport?.reportProgresses.every(
