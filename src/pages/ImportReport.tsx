@@ -7,6 +7,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useParams } from 'react-router-dom'
 import useReportHook from '@/hooks/useReportHook'
 import {
+  ReportOneSummaryData,
   ResponseOneReportSummary,
   ResponseReportSummaryWithProgress,
   TypeResponse,
@@ -18,6 +19,7 @@ import useUtils from '@/utils/utils'
 import dayjs from 'dayjs'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
 import BackLayout from '@/layouts/BackLayout'
+import useSocket from '@/hooks/useSocket'
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -34,9 +36,11 @@ function ImportReportPage() {
   dayjs.extend(buddhistEra)
   dayjs.locale('th')
   const toast = useToast()
+  const socket = useSocket()
   const [loading, setLoading] = useState(false)
   const [openImportDialog, setOpenImportDialog] = useState(false)
   const { id } = useParams()
+
   const [typeField, setTypeField] = useState<TypeResponse[]>([])
   const reportApi = useReportHook()
   const [dialogData, setDialogData] =
@@ -63,6 +67,23 @@ function ImportReportPage() {
   useEffect(() => {
     fetchData()
   }, [id])
+  useEffect(() => {
+    if (socket.socket)
+      socket.receiveFieldStatus(id!, (data: ReportOneSummaryData) => {
+        setSummaryReport(prev => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            reportProgresses: prev.reportProgresses.map(item =>
+              item.id === data.id ? { ...data } : item
+            ),
+          }
+        })
+      })
+    return () => {
+      socket.leaveRoomReport(id!)
+    }
+  }, [socket.socket])
   async function downloadFile(id: number) {
     if (!id) return
     setLoading(true)

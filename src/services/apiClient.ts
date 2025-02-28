@@ -1,9 +1,7 @@
 import axios from 'axios'
-
+export const baseUrl = import.meta.env.VITE_R3S_API || 'http://localhost:3000/'
 const axiosClient = axios.create({
-  baseURL:
-    import.meta.env.VITE_R3S_API ||
-    ' https://slica-r3s-api.isoftplus.co.th/api/',
+  baseURL: baseUrl + 'api/',
   timeout: 5000,
   headers: { 'Content-Type': 'application/json' },
 })
