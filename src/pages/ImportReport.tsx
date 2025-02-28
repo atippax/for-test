@@ -244,7 +244,7 @@ function ImportReportPage() {
                               accept=".xlsx,.xls"
                               onChange={event =>
                                 handleFileUpload(
-                                  x.id.toString(),
+                                  `${field?.id}`,
                                   event.target.files
                                 )
                               }
