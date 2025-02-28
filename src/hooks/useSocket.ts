@@ -34,7 +34,7 @@ const useSocket = () => {
       reconnectionDelay: 3000,
     })
     setSocket(newSocket)
-    socket?.on('joinedRoom', data => {
+    socket?.on('joinedRoom', (data: string) => {
       console.log(data)
     })
   }, [])
