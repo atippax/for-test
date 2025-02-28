@@ -70,6 +70,7 @@ function ImportReportPage() {
   useEffect(() => {
     if (socket.socket)
       socket.receiveFieldStatus(id!, (data: ReportOneSummaryData) => {
+        console.log('coming req', data)
         setSummaryReport(prev => {
           if (!prev) return prev
           return {
