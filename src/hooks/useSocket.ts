@@ -13,7 +13,7 @@ const useSocket = () => {
     ) => {
       const key = `report-summary-${summaryId}`
       if (socket) {
-        socket.emit('joinRoom', key)
+        socket.emit('report:join-room', key)
         socket.on('update-field-status', calbackFunction)
       }
     },
