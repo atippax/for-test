@@ -70,7 +70,6 @@ function ImportReportPage() {
   useEffect(() => {
     if (socket.socket)
       socket.receiveFieldStatus(id!, (data: ReportOneSummaryData) => {
-        console.log('coming req', data)
         setSummaryReport(prev => {
           if (!prev) return prev
           return {
@@ -305,7 +304,7 @@ function ImportReportPage() {
                   </Button>
                   <Button
                     disabled={
-                      summaryReport?.reportProgresses.some(
+                      !summaryReport?.reportProgresses.some(
                         x => x.status == STATUS.PROCESSING
                       ) || loading
                     }
