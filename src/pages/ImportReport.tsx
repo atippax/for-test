@@ -232,7 +232,9 @@ function ImportReportPage() {
                         </span>
                         <span>
                           <Button
-                            disabled={loading}
+                            disabled={
+                              loading || summaryReport.status == Type.FINISH
+                            }
                             component="label"
                             role={undefined}
                             variant="outlined"
