@@ -1,6 +1,8 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import convertor from '@/utils/convertor'
-import { User } from '@/services/authApi'
+// import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
+
+// import convertor from '@/utils/convertor'
+// import { User } from '@/services/authApi'
 
 const ProtectedRoute = () => {
   // const location = useLocation()
